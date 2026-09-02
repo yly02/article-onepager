@@ -1,0 +1,4 @@
+interface:
+  display_name: "文章一页纸"
+  short_description: "把原文重组为 500-800 字可信快讯"
+  default_prompt: "Use $article-onepager to turn this article into a sourced Chinese one-pager."
