@@ -31,11 +31,13 @@ def package(output: Path) -> Path:
         raise ValueError("缺少打包文件：" + ", ".join(missing))
     output = output.expanduser().resolve()
     output.parent.mkdir(parents=True, exist_ok=True)
+    skip_parts = {".git", "__pycache__"}
     files = sorted(
         path for path in SKILL_ROOT.rglob("*")
         if path.is_file()
-        and "__pycache__" not in path.parts
+        and not skip_parts.intersection(path.parts)
         and path.suffix not in {".pyc", ".zip"}
+        and path.name != ".DS_Store"
     )
     with zipfile.ZipFile(output, "w", compression=zipfile.ZIP_DEFLATED, compresslevel=9) as archive:
         for path in files:

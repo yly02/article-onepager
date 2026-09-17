@@ -126,20 +126,6 @@ def _relation_html(section: dict) -> str:
 def _references(article: Any, distilled: dict) -> list[dict]:
     op = distilled.get("one_pager") if isinstance(distilled.get("one_pager"), dict) else {}
     candidates = list(op.get("references") or [])
-    for check in distilled.get("fact_check") or []:
-        if not isinstance(check, dict):
-            continue
-        for evidence in check.get("evidence") or []:
-            if isinstance(evidence, dict):
-                candidates.append({
-                    "title": evidence.get("publisher") or check.get("claim") or "证据",
-                    "url": evidence.get("url"),
-                })
-    if _text(getattr(article, "url", "")):
-        candidates.append({
-            "title": f"原文：{_text(getattr(article, 'title', '')) or _text(article.url)}",
-            "url": article.url,
-        })
     result = []
     seen = set()
     for item in candidates:
@@ -154,28 +140,31 @@ def _references(article: Any, distilled: dict) -> list[dict]:
 
 
 CSS = """
-:root{--paper:#fff;--ink:#191b1a;--muted:#616866;--line:#d7dcda;--wash:#eef1f0;--hero:#edf7f5;--orange:#d55f3f;--blue:#4774d7;--green:#2e8b70;--amber:#d49a36;--link:#2359b8}
-*{box-sizing:border-box}html{background:var(--wash)}body{margin:0;background:var(--wash);color:var(--ink);font-family:"Avenir Next","Segoe UI","PingFang SC","Noto Sans SC","Microsoft YaHei",sans-serif;line-height:1.75;letter-spacing:0}
+:root{--paper:#fff;--ink:#1a1a1a;--muted:#6b7280;--line:#e5e7eb;--wash:#fff;--hero:#fff;--orange:#d97706;--blue:#5b9bd5;--green:#16a34a;--amber:#d97706;--link:#5b9bd5;--accent:#5b9bd5;--accent-soft:#f3f4f6;--metric-primary:#1f9d68;--metric-primary-soft:#eaf7f1;--metric-baseline:#4f7fd8;--metric-baseline-soft:#eaf1fd}
+[data-theme="dark"]{--paper:#1a1d24;--ink:#e5e7eb;--muted:#9ca3af;--line:#2d3038;--wash:#0f1115;--hero:#1a1d24;--orange:#fbbf24;--blue:#8dc1f3;--green:#4ade80;--amber:#fbbf24;--link:#8dc1f3;--accent:#8dc1f3;--accent-soft:#182738;--metric-primary:#52c991;--metric-primary-soft:#17352b;--metric-baseline:#82aaf1;--metric-baseline-soft:#1b2b47}
+[data-theme="sepia"]{--paper:#fffdf5;--ink:#4a3b2a;--muted:#8b7d6b;--line:#ddd0b8;--wash:#f5f0e1;--hero:#fffdf5;--orange:#b8860b;--blue:#8b6914;--green:#5d7c1f;--amber:#b8860b;--link:#8b6914;--accent:#8b6914;--accent-soft:#f5edd0;--metric-primary:#3d8b62;--metric-primary-soft:#e9f1e5;--metric-baseline:#587caa;--metric-baseline-soft:#e7edf3}
+*{box-sizing:border-box}html{background:var(--wash)}body{margin:0;background:var(--wash);color:var(--ink);font-family:"Avenir Next","Segoe UI","PingFang SC","Noto Sans SC","Microsoft YaHei",sans-serif;line-height:1.75;letter-spacing:0;transition:background .2s,color .2s}
+.theme-switcher{position:fixed;top:16px;right:16px;display:flex;gap:6px;z-index:100}.theme-btn{width:28px;height:28px;border-radius:50%;border:1.5px solid var(--line);cursor:pointer;transition:transform .15s}.theme-btn:hover{transform:scale(1.1)}.theme-btn.active{border-color:var(--accent);border-width:2px}.theme-light{background:#fff}.theme-dark{background:#0f1115}.theme-sepia{background:#f5f0e1}
 main{width:min(100%,760px);min-height:100vh;margin:0 auto;background:var(--paper);overflow:hidden}
 .hero{position:relative;padding:54px 56px 44px;background:var(--hero)}
 .hero-rail{position:absolute;left:0;right:0;bottom:0;height:8px;display:grid;grid-template-columns:25% 33% 42%}.hero-rail i:nth-child(1){background:var(--amber)}.hero-rail i:nth-child(2){background:var(--blue)}.hero-rail i:nth-child(3){background:var(--green)}
-.topics{margin:0 0 18px;color:var(--green);font-size:13px;font-weight:700}.topics span+span:before{content:" · ";color:var(--muted)}
+.topics{margin:0 0 18px;color:var(--blue);font-size:13px;font-weight:700}.topics span+span:before{content:" · ";color:var(--muted)}
 h1{max-width:640px;margin:0;font-size:42px;line-height:1.16;font-weight:780;letter-spacing:0;overflow-wrap:anywhere}
-.lead{max-width:620px;margin:24px 0 0;font-size:19px;line-height:1.7;font-weight:520;color:#303533}
+.lead{max-width:620px;margin:24px 0 0;font-size:19px;line-height:1.7;font-weight:520;color:var(--muted)}
 .story{position:relative;padding:48px 56px 24px}.story:before{content:"";position:absolute;left:78px;top:48px;bottom:40px;width:2px;background:var(--line)}
-.story-section{--section-accent:var(--orange);position:relative;min-width:0;margin:0 0 48px;padding:0 0 42px 58px;border-bottom:1px solid #e5e8e7}
+.story-section{--section-accent:var(--orange);position:relative;min-width:0;margin:0 0 48px;padding:0 0 42px 58px;border-bottom:1px solid var(--line)}
 .story-section:nth-child(4n+2){--section-accent:var(--green)}.story-section:nth-child(4n+3){--section-accent:var(--blue)}.story-section:nth-child(4n+4){--section-accent:var(--amber)}
 .story-section:last-child{margin-bottom:0;border-bottom:0}.spine-node{position:absolute;z-index:1;left:-2px;top:1px;width:48px;height:34px;display:grid;place-items:center;background:var(--paper);border:2px solid var(--section-accent);color:var(--section-accent);font-size:12px;font-weight:800}
-h2{margin:0 0 14px;font-size:28px;line-height:1.28;font-weight:760;overflow-wrap:anywhere}.section-copy p{margin:0 0 12px;font-size:16px;line-height:1.8;color:#333837}.section-copy strong{font-weight:780;color:#101211}
-.relation{margin:24px 0 0;min-width:0}.relation-node{position:relative;min-width:0;padding:16px 16px 15px;border:1px solid color-mix(in srgb,var(--section-accent) 45%,#d9dddc);border-radius:6px;background:#f8faf9}.relation-node strong{display:block;padding-right:28px;font-size:15px;line-height:1.4;color:var(--ink)}.relation-node p{margin:7px 0 0;font-size:13.5px;line-height:1.55;color:#505755}.node-index{position:absolute;right:12px;top:13px;color:var(--section-accent);font-size:12px;font-weight:800}
+h2{margin:0 0 14px;font-size:28px;line-height:1.28;font-weight:760;overflow-wrap:anywhere}.section-copy p{margin:0 0 12px;font-size:16px;line-height:1.8;color:var(--ink)}.section-copy strong{font-weight:780;color:var(--ink)}
+.relation{margin:24px 0 0;min-width:0}.relation-node{position:relative;min-width:0;padding:16px 16px 15px;border:1px solid color-mix(in srgb,var(--section-accent) 45%,var(--line));border-radius:6px;background:var(--accent-soft)}.relation-node strong{display:block;padding-right:28px;font-size:15px;line-height:1.4;color:var(--ink)}.relation-node p{margin:7px 0 0;font-size:13.5px;line-height:1.55;color:var(--muted)}.node-index{position:absolute;right:12px;top:13px;color:var(--section-accent);font-size:12px;font-weight:800}
 .relation-contrast,.relation-transition,.relation-bottleneck{display:grid;grid-template-columns:minmax(0,1fr) 42px minmax(0,1fr);align-items:stretch}.relation-connector{display:grid;place-items:center;color:var(--section-accent);font-size:24px;font-weight:800}.relation-bottleneck .relation-connector{font-size:34px}
 .converge-sources{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.converge-connector{display:block;height:34px;text-align:center;color:var(--section-accent);font-size:22px;line-height:34px}.converge-target{max-width:72%;margin:0 auto;border-width:2px}
 .loop-nodes{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;padding:16px;border:2px solid var(--section-accent);border-radius:6px}.loop-nodes .relation-node{background:var(--paper)}
-.metric-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}.metric-item{position:relative;min-width:0;min-height:126px;padding:18px 13px 14px;border:1px solid color-mix(in srgb,var(--section-accent) 42%,#d9dddc);border-top:4px solid var(--section-accent);border-radius:6px;background:#f8faf9}.metric-index{position:absolute;right:10px;top:7px;color:var(--section-accent);font-size:12px;font-weight:800}.metric-value{display:block;margin-top:3px;color:var(--section-accent);font-size:27px;line-height:1.15;font-weight:800;overflow-wrap:anywhere}.metric-label{display:block;margin-top:7px;color:var(--ink);font-size:12px;line-height:1.35;font-weight:700;overflow-wrap:anywhere}.metric-item p{margin:7px 0 0;color:#59605e;font-size:12px;line-height:1.45}
-.matrix-scroll{width:100%;overflow-x:auto;border:1px solid var(--line);border-radius:6px}.relation-matrix table{width:100%;border-collapse:collapse;background:var(--paper);font-size:13px;line-height:1.4}.relation-matrix th,.relation-matrix td{padding:11px 10px;border-bottom:1px solid #e2e6e4;text-align:right;vertical-align:middle}.relation-matrix thead th{background:#edf2f0;color:#414846;font-size:12px;font-weight:750}.relation-matrix th:first-child{text-align:left}.relation-matrix tbody th{width:34%;color:var(--ink);font-weight:750}.relation-matrix tbody tr:last-child th,.relation-matrix tbody tr:last-child td{border-bottom:0}.relation-matrix tbody tr:nth-child(even){background:#f8faf9}.matrix-detail{display:block;margin-top:3px;color:var(--muted);font-size:12px;font-weight:500}.relation-matrix td{font-variant-numeric:tabular-nums;font-weight:700}
-.evidence-footer{padding:32px 56px 52px;background:#f5f6f5;border-top:1px solid var(--line)}.evidence-footer h2{margin:0 0 10px;font-size:16px}
-.references ol{margin:0;padding-left:22px}.references li{padding:7px 0;font-size:13px;color:var(--muted)}.ref-title{display:block;color:var(--ink);font-weight:650}.ref-url{display:block;color:var(--link);overflow-wrap:anywhere}a{color:inherit;text-decoration:none}a:hover .ref-title,a:hover .ref-url{text-decoration:underline}.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
-@media(max-width:600px){.hero{padding:38px 22px 34px}h1{font-size:32px;line-height:1.14}.lead{font-size:16px;line-height:1.72}.story{padding:38px 20px 10px}.story:before{left:37px;top:38px;bottom:28px}.story-section{margin-bottom:38px;padding:0 0 34px 40px}.spine-node{left:-2px;width:38px;height:30px;font-size:12px}h2{font-size:22px}.section-copy p{font-size:15px;line-height:1.75}.relation-node{padding:14px 12px}.relation-node strong{font-size:14px}.relation-node p{font-size:13px}.relation-contrast,.relation-transition,.relation-bottleneck{grid-template-columns:minmax(0,1fr) 28px minmax(0,1fr)}.relation-connector{font-size:19px}.converge-sources{gap:9px}.converge-target{max-width:88%}.loop-nodes{grid-template-columns:1fr;padding:10px}.metric-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.metric-item{min-height:116px}.metric-value{font-size:24px}.evidence-footer{padding:28px 22px 42px}}
+.metric-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}.metric-item{position:relative;min-width:0;min-height:126px;padding:18px 13px 14px;border:1px solid var(--line);border-top:4px solid var(--section-accent);border-radius:6px;background:var(--accent-soft)}.metric-index{position:absolute;right:10px;top:7px;color:var(--section-accent);font-size:12px;font-weight:800}.metric-value{display:block;margin-top:3px;color:var(--section-accent);font-size:27px;line-height:1.15;font-weight:800;overflow-wrap:anywhere}.metric-label{display:block;margin-top:7px;color:var(--ink);font-size:12px;line-height:1.35;font-weight:700;overflow-wrap:anywhere}.metric-item p{margin:7px 0 0;color:var(--muted);font-size:12px;line-height:1.45}
+.matrix-scroll{width:100%;overflow-x:auto;border:1px solid var(--line);border-radius:6px}.relation-matrix table{width:100%;border-collapse:collapse;background:var(--paper);font-size:13px;line-height:1.4}.relation-matrix th,.relation-matrix td{padding:11px 10px;border-bottom:1px solid var(--line);text-align:right;vertical-align:middle}.relation-matrix thead th{background:var(--accent-soft);color:var(--muted);font-size:12px;font-weight:750}.relation-matrix th:first-child{text-align:left}.relation-matrix tbody th{width:34%;color:var(--ink);font-weight:750}.relation-matrix tbody tr:last-child th,.relation-matrix tbody tr:last-child td{border-bottom:0}.relation-matrix tbody tr:nth-child(even){background:var(--accent-soft)}.matrix-detail{display:block;margin-top:3px;color:var(--muted);font-size:12px;font-weight:500}.relation-matrix td{font-variant-numeric:tabular-nums;font-weight:700}
+.evidence-footer{padding:32px 56px 52px;background:var(--accent-soft);border-top:1px solid var(--line)}.evidence-footer h2{margin:0 0 10px;font-size:16px}
+.references ol{margin:0;padding-left:22px}.references li{padding:7px 0;font-size:14px;color:var(--ink);font-weight:650}.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+@media(max-width:600px){.theme-switcher{position:static;justify-content:flex-end;margin:10px 12px 0}.hero{padding:38px 22px 34px}h1{font-size:32px;line-height:1.14}.lead{font-size:16px;line-height:1.72}.story{padding:38px 20px 10px}.story:before{left:37px;top:38px;bottom:28px}.story-section{margin-bottom:38px;padding:0 0 34px 40px}.spine-node{left:-2px;width:38px;height:30px;font-size:12px}h2{font-size:22px}.section-copy p{font-size:15px;line-height:1.75}.relation-node{padding:14px 12px}.relation-node strong{font-size:14px}.relation-node p{font-size:13px}.relation-contrast,.relation-transition,.relation-bottleneck{grid-template-columns:minmax(0,1fr) 28px minmax(0,1fr)}.relation-connector{font-size:19px}.converge-sources{gap:9px}.converge-target{max-width:88%}.loop-nodes{grid-template-columns:1fr;padding:10px}.metric-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.metric-item{min-height:116px}.metric-value{font-size:24px}.evidence-footer{padding:28px 22px 42px}}
 @media(max-width:480px){.relation-contrast,.relation-transition,.relation-bottleneck{grid-template-columns:1fr}.relation-connector{height:30px;transform:rotate(90deg)}.converge-sources{grid-template-columns:1fr}.converge-target{max-width:100%}.relation-matrix thead{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}.relation-matrix table,.relation-matrix tbody,.relation-matrix tr,.relation-matrix th,.relation-matrix td{display:block;width:100%}.relation-matrix tbody tr{padding:11px 12px;border-bottom:1px solid var(--line)}.relation-matrix tbody tr:last-child{border-bottom:0}.relation-matrix tbody th{padding:0 0 8px;border:0}.relation-matrix td{display:flex;justify-content:space-between;gap:14px;padding:6px 0;border:0;text-align:right}.relation-matrix td:before{content:attr(data-label);color:var(--muted);font-size:12px;font-weight:600;text-align:left}.matrix-detail{max-width:90%}}
 """
 
@@ -183,9 +172,8 @@ h2{margin:0 0 14px;font-size:28px;line-height:1.28;font-weight:760;overflow-wrap
 def render_html(article: Any, distilled: dict) -> str:
     op = distilled.get("one_pager") if isinstance(distilled.get("one_pager"), dict) else {}
     title = _text(distilled.get("distilled_title")) or _text(getattr(article, "title", "")) or "文章一页纸"
-    lead = _text(op.get("lead"))
     sections = [item for item in op.get("key_sections") or [] if isinstance(item, dict)]
-    tags = [_text(item) for item in distilled.get("category_tags") or [] if _text(item)]
+    tags = [_text(item) for item in distilled.get("category_tags") or [] if _text(item)][:5]
     topics_html = "".join(f"<span>{_esc(item)}</span>" for item in tags)
     section_html = []
     for index, section in enumerate(sections, start=1):
@@ -203,28 +191,46 @@ def render_html(article: Any, distilled: dict) -> str:
     refs_html = ""
     if refs:
         items = "".join(
-            f'<li><a href="{_esc(item["url"])}" target="_blank" rel="noopener noreferrer">'
-            f'<span class="ref-title">{_esc(item["title"])}</span><span class="ref-url">{_esc(item["url"])}</span></a></li>'
+            f'<li>{_esc(item["title"])}</li>'
             for item in refs
         )
-        refs_html = f'<nav class="references" aria-label="参考链接"><h2>参考链接</h2><ol>{items}</ol></nav>'
+        refs_html = f'<nav class="references" aria-label="来源"><h2>来源</h2><ol>{items}</ol></nav>'
 
     return f"""<!doctype html>
 <html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>{_esc(title)}</title><style>{CSS}</style></head><body><main data-layout="narrative-spine">
+<title>{_esc(title)}</title><style>{CSS}</style></head><body>
+<div class="theme-switcher">
+  <div class="theme-btn theme-light active" onclick="setTheme('light')" title="亮色"></div>
+  <div class="theme-btn theme-dark" onclick="setTheme('dark')" title="暗色"></div>
+  <div class="theme-btn theme-sepia" onclick="setTheme('sepia')" title="护眼"></div>
+</div>
+<main data-layout="narrative-spine">
 <header class="hero">{f'<div class="topics">{topics_html}</div>' if topics_html else ''}<h1>{_esc(title)}</h1>
-{f'<p class="lead">{_inline_html(lead)}</p>' if lead else ''}<div class="hero-rail" aria-hidden="true"><i></i><i></i><i></i></div></header>
+<div class="hero-rail" aria-hidden="true"><i></i><i></i><i></i></div></header>
 <div class="story">{''.join(section_html)}</div>{f'<footer class="evidence-footer">{refs_html}</footer>' if refs_html else ''}
-</main></body></html>"""
+</main>
+<script>
+function setTheme(t){{
+  document.body.setAttribute('data-theme',t);
+  document.querySelectorAll('.theme-btn').forEach(b=>b.classList.remove('active'));
+  var btn=document.querySelector('.theme-'+t);
+  if(btn) btn.classList.add('active');
+  try{{localStorage.setItem('ad-theme',t)}}catch(e){{}}
+}}
+(function(){{
+  try{{
+    var t=localStorage.getItem('ad-theme');
+    if(t) setTheme(t);
+  }}catch(e){{}}
+}})();
+</script>
+</body></html>"""
 
 
 def render_markdown(article: Any, distilled: dict) -> str:
     op = distilled.get("one_pager") if isinstance(distilled.get("one_pager"), dict) else {}
     title = _text(distilled.get("distilled_title")) or _text(getattr(article, "title", "")) or "文章一页纸"
     parts = [f"# {title}", ""]
-    lead = _text(op.get("lead"))
-    if lead:
-        parts.extend([f"> {lead}", ""])
     for section in op.get("key_sections") or []:
         if not isinstance(section, dict):
             continue
@@ -258,7 +264,7 @@ def render_markdown(article: Any, distilled: dict) -> str:
 
     refs = _references(article, distilled)
     if refs:
-        parts.extend(["---", "", "## 参考链接", ""])
-        parts.extend(f'- [{item["title"]}]({item["url"]})' for item in refs)
+        parts.extend(["---", "", "## 来源", ""])
+        parts.extend(f'- {item["title"]}' for item in refs)
         parts.append("")
     return "\n".join(parts).rstrip() + "\n"

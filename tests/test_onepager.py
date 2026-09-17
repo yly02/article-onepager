@@ -329,8 +329,11 @@ def test_renderers_are_semantically_aligned_and_escape_html():
     assert "<script>alert(1)</script>" not in page
     assert "&lt;script&gt;alert(1)&lt;/script&gt;" in page
     assert "<strong>关键边界</strong>" in page
-    for text in ("评测过程终于能被追溯", "参考链接", "分步追溯", "发布方结果"):
+    for text in ("评测过程终于能被追溯", "来源", "分步追溯", "发布方结果"):
         assert text in page and text in markdown
+    assert "一套新的评测流程把准备、执行和复核拆开记录" not in page
+    assert "一套新的评测流程把准备、执行和复核拆开记录" not in markdown
+    assert "<p class=\"lead\">" not in page
     for internal_text in ("资料与边界", "材料由研究团队发布", "只能确认发布方材料"):
         assert internal_text not in page and internal_text not in markdown
     for metadata in ("2026-08-25", "作者", "抓取于"):
@@ -340,15 +343,26 @@ def test_renderers_are_semantically_aligned_and_escape_html():
     assert 'class="relation relation-transition"' in page
     assert 'class="relation relation-loop"' in page
     assert 'class="relation relation-bottleneck"' in page
-    assert "--hero:#edf7f5" in page
+    assert "--accent:#5b9bd5" in page
+    assert "--hero:#fff" in page
+    assert '[data-theme="dark"]' in page
+    assert '[data-theme="sepia"]' in page
+    assert "theme-switcher" in page
+    assert "setTheme('sepia')" in page
+    assert "ad-theme" in page
     assert ".hero{position:relative;padding:54px 56px 44px;background:var(--hero)}" in page
-    assert ".topics{margin:0 0 18px;color:var(--green)" in page
-    assert ".lead{max-width:620px;margin:24px 0 0;font-size:19px;line-height:1.7;font-weight:520;color:#303533}" in page
+    assert ".topics{margin:0 0 18px;color:var(--blue)" in page
+    assert ".lead{max-width:620px;margin:24px 0 0;font-size:19px;line-height:1.7;font-weight:520;color:var(--muted)}" in page
+    assert "--hero:#edf7f5" not in page
+    assert "hero-rail" in page
     assert "linear-gradient" not in page
     assert "@media(max-width:480px)" in page
-    assert page.count('href="https://example.com/research"') == 1
-    assert page.count('<span class="ref-url">https://example.com/research</span>') == 1
-    assert markdown.count("https://example.com/research") == 1
+    assert 'href="https://example.com/research"' not in page
+    assert "https://example.com/research" not in page
+    assert "https://example.com/research" not in markdown
+    assert "原始研究" in page and "原始研究" in markdown
+    assert "<h2>来源</h2>" in page
+    assert "## 来源" in markdown
     assert "**变化路径**" in markdown
     assert "1. **混合记录**" in markdown
 
@@ -363,6 +377,7 @@ def test_package_is_reproducible_and_contains_tests():
             names = set(archive.namelist())
         assert "article-onepager/tests/test_onepager.py" in names
         assert "article-onepager/scripts/onepager_mode.py" in names
+        assert not any(name.startswith("article-onepager/.git/") for name in names)
 
 
 if __name__ == "__main__":
